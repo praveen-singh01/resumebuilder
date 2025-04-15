@@ -27,7 +27,7 @@ A modern resume builder application with enhanced UI/UX and Firebase authenticat
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+ and npm (our deployment script handles Firebase CLI compatibility)
 - Firebase account
 
 ### Setup
@@ -114,7 +114,46 @@ npm run dev
 
 ## Deployment
 
-This application can be deployed to Vercel:
+### Firebase Deployment
+
+This application is configured to be deployed on Firebase Hosting:
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Log in to Firebase:
+   ```bash
+   npm run firebase-login
+   ```
+
+3. Deploy the application:
+   ```bash
+   npm run deploy
+   ```
+
+   After deployment, your application will be available at:
+   - https://resumebuilder-bf672.web.app
+   - https://resumebuilder-bf672.firebaseapp.com
+
+### Automatic Deployment with GitHub Actions
+
+This repository is configured with GitHub Actions for automatic deployment when you push to the main branch.
+
+To set up automatic deployment:
+
+1. Go to your GitHub repository settings
+2. Navigate to "Secrets and variables" > "Actions"
+3. Add a new repository secret:
+   - Name: `FIREBASE_SERVICE_ACCOUNT_RESUMEBUILDER_BF672`
+   - Value: Your Firebase service account JSON (can be generated in Firebase Project Settings > Service accounts)
+
+Now, every push to the main branch will trigger a deployment to Firebase Hosting.
+
+### Alternative: Vercel Deployment
+
+This application can also be deployed to Vercel:
 
 1. Push your code to GitHub
 2. Connect your repository to Vercel

@@ -13,6 +13,13 @@
 # testing
 /coverage
 
+# firebase
+.firebase/
+firebase-debug.log
+ui-debug.log
+.runtimeconfig.json
+resume-builder-firebase-adminsdk-*.json
+
 # next.js
 /.next/
 /out/
