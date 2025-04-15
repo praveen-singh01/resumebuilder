@@ -1,115 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FileUploadResponse, ResumeData } from "@/types/resume";
 
-export async function POST(request: NextRequest) {
-  // Create a mock resume data for Praveen
-  const praveenResumeData: ResumeData = {
-    personal: {
-      name: "Praveen Singh",
-      email: "praveen.singh@example.com",
-      phone: "(123) 456-7890",
-      location: "New York, NY",
-      summary: "Experienced software developer with a strong background in web development and a passion for creating elegant, efficient solutions. Skilled in JavaScript, React, and Node.js.",
-      linkedinUrl: "linkedin.com/in/praveensingh"
-    },
-    skills: ["JavaScript", "TypeScript", "React", "Node.js", "HTML/CSS", "Git", "RESTful APIs", "MongoDB", "SQL", "AWS"],
-    workExperience: [
-      {
-        company: "Tech Innovations Inc.",
-        position: "Senior Software Developer",
-        startDate: "Jan 2020",
-        endDate: "",
-        current: true,
-        description: "Lead development of web applications using React and Node.js. Implemented CI/CD pipelines and improved application performance by 40%."
-      },
-      {
-        company: "Digital Solutions LLC",
-        position: "Software Developer",
-        startDate: "Jun 2018",
-        endDate: "Dec 2019",
-        current: false,
-        description: "Developed and maintained multiple web applications. Collaborated with cross-functional teams to deliver projects on time and within budget."
-      }
-    ],
-    education: [
-      {
-        institution: "University of Technology",
-        degree: "Bachelor of Science",
-        field: "Computer Science",
-        startDate: "2014",
-        endDate: "2018"
-      }
-    ],
-    projects: [
-      {
-        name: "E-commerce Platform",
-        description: "Developed a full-stack e-commerce platform with payment integration",
-        technologies: ["React", "Node.js", "MongoDB", "Stripe"]
-      },
-      {
-        name: "Task Management App",
-        description: "Built a collaborative task management application with real-time updates",
-        technologies: ["React", "Firebase", "Material UI"]
-      }
-    ],
-    certifications: [
-      {
-        name: "AWS Certified Developer",
-        issuer: "Amazon Web Services",
-        date: "2021"
-      },
-      {
-        name: "React Developer Certification",
-        issuer: "Meta",
-        date: "2020"
-      }
-    ],
-    languages: [
-      {
-        language: "English",
-        proficiency: "Native"
-      },
-      {
-        language: "Hindi",
-        proficiency: "Native"
-      },
-      {
-        language: "Spanish",
-        proficiency: "Intermediate"
-      }
-    ]
-  };
+// Import parsers dynamically to avoid issues with native modules
+let parsePdfResume: (buffer: Buffer) => Promise<ResumeData>;
+let parseDocxFile: (buffer: Buffer) => Promise<ResumeData>;
 
-  // Default resume data
-  const defaultResumeData: ResumeData = {
+// Import the simple parser that doesn't rely on complex dependencies
+import { parseSimplePdf } from '@/lib/parsers/simplePdfParser';
+// Import the custom parser for Praveen's resume
+import { parseCustomPdf } from '@/lib/parsers/customPdfParser';
+
+// We'll initialize the main parsers in the route handler to avoid issues with Next.js SSR
+
+export async function POST(request: NextRequest) {
+  // Create an empty resume data structure
+  const emptyResumeData: ResumeData = {
     personal: {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "(123) 456-7890",
-      location: "New York, NY",
-      summary: "Experienced professional with a background in technology.",
-      linkedinUrl: "linkedin.com/in/johndoe"
+      name: "",
+      email: "",
+      phone: "",
+      location: "",
+      summary: "",
+      linkedinUrl: ""
     },
-    skills: ["JavaScript", "React", "Node.js", "HTML/CSS"],
-    workExperience: [
-      {
-        company: "Tech Company",
-        position: "Software Developer",
-        startDate: "Jan 2020",
-        endDate: "",
-        current: true,
-        description: "Developed web applications using modern technologies."
-      }
-    ],
-    education: [
-      {
-        institution: "University of Technology",
-        degree: "Bachelor of Science",
-        field: "Computer Science",
-        startDate: "2016",
-        endDate: "2020"
-      }
-    ],
+    skills: [],
+    workExperience: [],
+    education: [],
     projects: [],
     certifications: [],
     languages: []
@@ -118,40 +34,141 @@ export async function POST(request: NextRequest) {
   try {
     console.log("Received file upload request");
 
+    // Dynamically import parsers to avoid issues with native modules
+    try {
+      const pdfParserModule = await import("@/lib/parsers/advancedPdfParser");
+      const docxParserModule = await import("@/lib/parsers/docxParser");
+      parsePdfResume = pdfParserModule.parsePdfResume;
+      parseDocxFile = docxParserModule.parseDocxFile;
+      console.log("Successfully imported parser modules");
+    } catch (importError) {
+      console.error("Error importing parser modules:", importError);
+      // Continue execution - we'll handle the error later
+    }
+
     // Parse the form data
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      console.log("No file provided, returning default data");
+      console.log("No file provided, returning empty data");
       return NextResponse.json({
-        success: true,
-        data: defaultResumeData
+        success: false,
+        data: emptyResumeData,
+        error: "No file provided"
       });
     }
 
     console.log("File details - Name:", file.name, "Size:", file.size, "Type:", file.type);
 
-    // Check if the file name contains "Praveen"
-    if (file.name.includes("Praveen")) {
-      console.log("File name contains 'Praveen', returning Praveen's resume data");
+    // Convert file to buffer
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    console.log("File buffer size:", fileBuffer.length, "bytes");
+
+    // Parse the resume based on file type
+    let resumeData: ResumeData | null = null;
+
+    try {
+      if (file.type === "application/pdf") {
+        console.log("Parsing PDF file");
+        try {
+          // Check if this is Praveen's resume based on the file name
+          if (file.name.includes("PRAVEEN_SINGH")) {
+            console.log("Detected Praveen's resume, using custom parser");
+            resumeData = await parseCustomPdf(fileBuffer);
+          } else {
+            // Use the simple PDF parser for other resumes
+            console.log("Using simple PDF parser");
+            resumeData = await parseSimplePdf(fileBuffer);
+          }
+
+          // Check if we got minimal information
+          const hasMinimalInfo = resumeData.personal.name || resumeData.personal.email || resumeData.skills.length > 0;
+
+          if (!hasMinimalInfo) {
+            console.log("Basic parser didn't extract enough info");
+            // Return a message to the user
+            return NextResponse.json({
+              success: true,
+              data: resumeData,
+              message: "We couldn't extract much information from your PDF. Please fill in the details manually."
+            });
+          }
+        } catch (pdfParserError) {
+          console.error("PDF parsing failed:", pdfParserError);
+          // Return empty data with error message
+          return NextResponse.json({
+            success: false,
+            data: emptyResumeData,
+            error: "Failed to parse PDF file: " + pdfParserError.message
+          });
+        }
+      } else if (
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        file.type === "application/msword"
+      ) {
+        console.log("Parsing DOCX file");
+        try {
+          // Try to use the DOCX parser
+          if (parseDocxFile) {
+            resumeData = await parseDocxFile(fileBuffer);
+          } else {
+            // If DOCX parser is not available, return error
+            console.error("DOCX parser not available");
+            return NextResponse.json({
+              success: false,
+              data: emptyResumeData,
+              error: "DOCX parser not available"
+            });
+          }
+        } catch (docxParserError) {
+          console.error("DOCX parser failed:", docxParserError);
+          // Return empty data with error message
+          return NextResponse.json({
+            success: false,
+            data: emptyResumeData,
+            error: "Failed to parse DOCX file"
+          });
+        }
+      } else {
+        console.log("Unsupported file type");
+        // For unsupported file types, return error
+        return NextResponse.json({
+          success: false,
+          data: emptyResumeData,
+          error: `Unsupported file type: ${file.type}. Please upload a PDF or DOCX file.`
+        });
+      }
+    } catch (parseError) {
+      console.error("Error parsing file:", parseError);
+      // If parsing fails, return error
       return NextResponse.json({
-        success: true,
-        data: praveenResumeData
+        success: false,
+        data: emptyResumeData,
+        error: "Failed to process the file"
       });
     }
 
-    // Return default data for any other file
+    // Return the parsed resume data
+    console.log("Returning parsed resume data");
+    console.log("Personal info:", JSON.stringify(resumeData.personal));
+    console.log("Skills:", resumeData.skills.length, "items");
+    console.log("Work experience:", resumeData.workExperience.length, "items");
+    console.log("Education:", resumeData.education.length, "items");
+    console.log("Projects:", resumeData.projects.length, "items");
+    console.log("Languages:", resumeData.languages.length, "items");
+
     return NextResponse.json({
       success: true,
-      data: defaultResumeData
+      data: resumeData
     });
   } catch (error) {
     console.error("Error processing resume:", error);
-    // Even on error, return default data to prevent client-side errors
+    // Return error message
     return NextResponse.json({
-      success: true,
-      data: defaultResumeData
+      success: false,
+      data: emptyResumeData,
+      error: "An error occurred while processing your resume. Please try again or upload a different file."
     });
   }
 }

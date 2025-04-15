@@ -16,7 +16,10 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
     const { name, value } = e.target;
     onUpdate({
       ...resumeData,
-      [name]: value,
+      personal: {
+        ...resumeData.personal,
+        [name]: value,
+      }
     });
   };
 
@@ -29,7 +32,11 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
   };
 
   const handleLanguagesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const languages = e.target.value.split(',').map(lang => lang.trim()).filter(Boolean);
+    const languageStrings = e.target.value.split(',').map(lang => lang.trim()).filter(Boolean);
+    const languages = languageStrings.map(lang => ({
+      name: lang,
+      proficiency: ''
+    }));
     onUpdate({
       ...resumeData,
       languages,
@@ -53,7 +60,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
       ...resumeData,
       education: [
         ...resumeData.education,
-        { institute: '', degree: '', year: '' },
+        { institution: '', degree: '', field: '', startDate: '', endDate: '' },
       ],
     });
   };
@@ -84,7 +91,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
       ...resumeData,
       workExperience: [
         ...resumeData.workExperience,
-        { company: '', role: '', duration: '', description: '' },
+        { company: '', position: '', startDate: '', endDate: '', description: '', current: false },
       ],
     });
   };
@@ -211,56 +218,56 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
         {activeSection === 'personal' && (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
               <input
                 type="text"
-                name="fullName"
-                value={resumeData.fullName}
+                name="name"
+                value={resumeData.personal.name}
                 onChange={handlePersonalInfoChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
                 name="email"
-                value={resumeData.email}
+                value={resumeData.personal.email}
                 onChange={handlePersonalInfoChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
               <input
                 type="tel"
                 name="phone"
-                value={resumeData.phone}
+                value={resumeData.personal.phone}
                 onChange={handlePersonalInfoChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
               <input
                 type="url"
                 name="linkedinUrl"
-                value={resumeData.linkedinUrl}
+                value={resumeData.personal.linkedinUrl}
                 onChange={handlePersonalInfoChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Summary</label>
               <textarea
                 name="summary"
-                value={resumeData.summary}
+                value={resumeData.personal.summary}
                 onChange={handlePersonalInfoChange}
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -273,7 +280,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
         {activeSection === 'skills' && (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">Skills & Languages</h2>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Skills (comma-separated)</label>
               <textarea
@@ -284,11 +291,11 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                 placeholder="JavaScript, React, Node.js, etc."
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Languages (comma-separated)</label>
               <textarea
-                value={resumeData.languages.join(', ')}
+                value={resumeData.languages.map(lang => lang.name).join(', ')}
                 onChange={handleLanguagesChange}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -311,7 +318,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                 Add Education
               </button>
             </div>
-            
+
             {resumeData.education.length === 0 ? (
               <p className="text-gray-500 italic">No education entries yet. Click "Add Education" to add one.</p>
             ) : (
@@ -325,18 +332,18 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                     >
                       ?
                     </button>
-                    
+
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Institute</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Institution</label>
                         <input
                           type="text"
-                          value={edu.institute}
-                          onChange={(e) => handleEducationChange(index, 'institute', e.target.value)}
+                          value={edu.institution}
+                          onChange={(e) => handleEducationChange(index, 'institution', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Degree</label>
                         <input
@@ -346,15 +353,36 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         />
                       </div>
-                      
+
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
                         <input
                           type="text"
-                          value={edu.year}
-                          onChange={(e) => handleEducationChange(index, 'year', e.target.value)}
+                          value={edu.field}
+                          onChange={(e) => handleEducationChange(index, 'field', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          placeholder="2018 - 2022"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                        <input
+                          type="text"
+                          value={edu.startDate}
+                          onChange={(e) => handleEducationChange(index, 'startDate', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          placeholder="2018"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <input
+                          type="text"
+                          value={edu.endDate || ''}
+                          onChange={(e) => handleEducationChange(index, 'endDate', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          placeholder="2022 (or leave empty for current)"
                         />
                       </div>
                     </div>
@@ -378,7 +406,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                 Add Experience
               </button>
             </div>
-            
+
             {resumeData.workExperience.length === 0 ? (
               <p className="text-gray-500 italic">No work experience entries yet. Click "Add Experience" to add one.</p>
             ) : (
@@ -392,7 +420,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                     >
                       ?
                     </button>
-                    
+
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
@@ -403,28 +431,51 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         />
                       </div>
-                      
+
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
                         <input
                           type="text"
-                          value={exp.role}
-                          onChange={(e) => handleWorkExperienceChange(index, 'role', e.target.value)}
+                          value={exp.position}
+                          onChange={(e) => handleWorkExperienceChange(index, 'position', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         />
                       </div>
-                      
+
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                         <input
                           type="text"
-                          value={exp.duration}
-                          onChange={(e) => handleWorkExperienceChange(index, 'duration', e.target.value)}
+                          value={exp.startDate}
+                          onChange={(e) => handleWorkExperienceChange(index, 'startDate', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          placeholder="Jan 2020 - Present"
+                          placeholder="Jan 2020"
                         />
                       </div>
-                      
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <input
+                          type="text"
+                          value={exp.endDate || ''}
+                          onChange={(e) => handleWorkExperienceChange(index, 'endDate', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          placeholder="Leave empty for current position"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+                          <input
+                            type="checkbox"
+                            checked={exp.current || false}
+                            onChange={(e) => handleWorkExperienceChange(index, 'current', e.target.checked ? 'true' : 'false')}
+                            className="mr-2"
+                          />
+                          Current Position
+                        </label>
+                      </div>
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <textarea
@@ -455,7 +506,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                 Add Project
               </button>
             </div>
-            
+
             {resumeData.projects.length === 0 ? (
               <p className="text-gray-500 italic">No project entries yet. Click "Add Project" to add one.</p>
             ) : (
@@ -469,7 +520,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                     >
                       ?
                     </button>
-                    
+
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
@@ -480,7 +531,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <textarea
@@ -490,7 +541,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Technologies (comma-separated)</label>
                         <input
@@ -501,7 +552,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                           placeholder="React, Node.js, MongoDB"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">URL (optional)</label>
                         <input
@@ -533,7 +584,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                 Add Certification
               </button>
             </div>
-            
+
             {resumeData.certifications.length === 0 ? (
               <p className="text-gray-500 italic">No certification entries yet. Click "Add Certification" to add one.</p>
             ) : (
@@ -547,7 +598,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                     >
                       ?
                     </button>
-                    
+
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Certification Name</label>
@@ -558,7 +609,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Issuer</label>
                         <input
@@ -568,7 +619,7 @@ export default function ResumeEditor({ resumeData, onUpdate, onPreview }: Resume
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
                         <input

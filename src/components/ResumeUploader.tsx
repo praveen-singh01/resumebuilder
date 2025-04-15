@@ -22,10 +22,17 @@ export default function ResumeUploader({ onResumeData }: ResumeUploaderProps) {
     if (acceptedFiles.length === 0) return;
 
     const file = acceptedFiles[0];
-    
+
     // Check file type
     if (!file.type.includes('pdf') && !file.type.includes('word') && !file.name.endsWith('.docx')) {
       setError('Please upload a PDF or DOCX file');
+      return;
+    }
+
+    // Check file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setError('File size should be less than 10MB');
       return;
     }
 
@@ -39,18 +46,18 @@ export default function ResumeUploader({ onResumeData }: ResumeUploaderProps) {
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log('Sending request to API...');
+      console.log('Sending request to API for advanced parsing...');
       const response = await fetch('/api/parse-resume', {
         method: 'POST',
         body: formData,
       });
 
       console.log('Response received, status:', response.status);
-      
+
       if (!response.ok) {
         throw new Error(`Server responded with status: ${response.status}`);
       }
-      
+
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         throw new Error(`Expected JSON response but got ${contentType}`);
@@ -63,12 +70,12 @@ export default function ResumeUploader({ onResumeData }: ResumeUploaderProps) {
         throw new Error(result.error || 'Failed to parse resume');
       }
 
-      console.log('Calling onResumeData with parsed data');
+      console.log('Resume data extracted successfully');
       setSuccess(true);
       onResumeData(result.data);
     } catch (err) {
-      console.error('Error uploading file:', err);
-      setError(err instanceof Error ? err.message : 'Failed to upload file');
+      console.error('Error uploading or parsing file:', err);
+      setError(err instanceof Error ? err.message : 'Failed to upload or parse file');
       setSuccess(false);
     } finally {
       setIsLoading(false);
@@ -94,30 +101,30 @@ export default function ResumeUploader({ onResumeData }: ResumeUploaderProps) {
               <div
                 {...getRootProps()}
                 className={`
-                  flex flex-col items-center justify-center w-full p-8 
+                  flex flex-col items-center justify-center w-full p-8
                   border-2 border-dashed rounded-lg cursor-pointer
                   transition-all duration-200 ease-in-out
                   ${isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-primary/50'}
                 `}
               >
                 <input {...getInputProps()} />
-                
+
                 {isLoading ? (
                   <div className="flex flex-col items-center justify-center space-y-4">
                     <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                    <p className="text-sm text-gray-500">Analyzing your resume...</p>
+                    <p className="text-sm text-gray-500">Analyzing your resume with AI...</p>
                   </div>
                 ) : success ? (
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="flex flex-col items-center justify-center space-y-4"
                   >
                     <CheckCircle className="w-16 h-16 text-green-500" />
-                    <p className="text-lg font-medium text-green-600">Resume uploaded successfully!</p>
+                    <p className="text-lg font-medium text-green-600">Resume analyzed successfully!</p>
                     {fileName && <p className="text-sm text-gray-500">{fileName}</p>}
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSuccess(false);
@@ -128,7 +135,7 @@ export default function ResumeUploader({ onResumeData }: ResumeUploaderProps) {
                     </Button>
                   </motion.div>
                 ) : error ? (
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="flex flex-col items-center justify-center space-y-4"
@@ -136,8 +143,8 @@ export default function ResumeUploader({ onResumeData }: ResumeUploaderProps) {
                     <AlertCircle className="w-16 h-16 text-red-500" />
                     <p className="text-lg font-medium text-red-600">Error uploading file</p>
                     <p className="text-sm text-gray-500">{error}</p>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={(e) => {
                         e.stopPropagation();
                         setError(null);
@@ -162,6 +169,9 @@ export default function ResumeUploader({ onResumeData }: ResumeUploaderProps) {
                       </p>
                       <p className="text-xs text-gray-400 mt-2">
                         Supported formats: PDF, DOCX
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Maximum file size: 10MB
                       </p>
                     </div>
                     <Button variant="gradient" className="mt-4">

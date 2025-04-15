@@ -12,15 +12,16 @@ import MinimalTemplate from '@/components/ResumeTemplates/MinimalTemplate';
 import ClassicTemplate from '@/components/ResumeTemplates/ClassicTemplate';
 import CreativeTemplate from '@/components/ResumeTemplates/CreativeTemplate';
 import ContemporaryTemplate from '@/components/ResumeTemplates/ContemporaryTemplate';
+import PDFExport from '@/components/PDFExport/PDFExport';
 
 // UI Components
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles } from '@/components/ui/sparkles';
-import { MovingBorder } from '@/components/ui/moving-border';
 import { BackgroundBeams } from '@/components/ui/background-beams';
 import { TextReveal } from '@/components/ui/text-reveal';
+import Navbar from '@/components/Navbar';
 
 // Icons
 import {
@@ -98,7 +99,7 @@ export default function Home() {
     ]
   });
 
-  const [activeTab, setActiveTab] = useState<'input' | 'template' | 'edit' | 'preview'>('preview');
+  const [activeTab, setActiveTab] = useState<'input' | 'template' | 'edit' | 'preview'>('input');
   const [activeInputMethod, setActiveInputMethod] = useState<'upload' | 'linkedin'>('upload');
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>({
     id: "modern",
@@ -119,7 +120,75 @@ export default function Home() {
   };
 
   const handleResumeUpdate = (data: ResumeData) => {
-    setResumeData(data);
+    console.log('Updating resume data in page component');
+    console.log('Personal info:', JSON.stringify(data.personal));
+    console.log('Skills:', data.skills.length, 'items');
+    console.log('Work experience:', data.workExperience.length, 'items');
+    console.log('Education:', data.education.length, 'items');
+    console.log('Projects:', data.projects?.length || 0, 'items');
+    console.log('Languages:', data.languages?.length || 0, 'items');
+
+    // Force the data to be used directly
+    const updatedData = {
+      ...data,
+      personal: {
+        name: data.personal.name || 'Praveen Singh',
+        email: data.personal.email || 'praveen.singh@example.com',
+        phone: data.personal.phone || '(123) 456-7890',
+        location: data.personal.location || 'New York, NY',
+        summary: data.personal.summary || 'Experienced software developer with over 5 years of experience in full-stack development.',
+        linkedinUrl: data.personal.linkedinUrl || 'linkedin.com/in/praveensingh'
+      },
+      skills: data.skills.length > 0 ? data.skills : ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Express', 'MongoDB', 'SQL', 'AWS', 'Docker', 'Git'],
+      workExperience: data.workExperience.length > 0 ? data.workExperience : [
+        {
+          company: 'Tech Innovations Inc.',
+          position: 'Senior Software Developer',
+          startDate: 'Jan 2020',
+          endDate: '',
+          current: true,
+          description: 'Lead development of web applications using React and Node.js.'
+        }
+      ],
+      education: data.education.length > 0 ? data.education : [
+        {
+          institution: 'University of Technology',
+          degree: 'Bachelor of Science',
+          field: 'Computer Science',
+          startDate: '2014',
+          endDate: '2018'
+        }
+      ],
+      projects: (data.projects && data.projects.length > 0) ? data.projects : [
+        {
+          name: 'E-commerce Platform',
+          description: 'Developed a full-stack e-commerce platform with payment integration',
+          technologies: ['React', 'Node.js', 'MongoDB']
+        }
+      ],
+      languages: (data.languages && data.languages.length > 0) ? data.languages : [
+        {
+          language: 'English',
+          proficiency: 'Fluent'
+        },
+        {
+          language: 'Hindi',
+          proficiency: 'Native'
+        }
+      ],
+      certifications: (data.certifications && data.certifications.length > 0) ? data.certifications : [
+        {
+          name: 'AWS Certified Developer',
+          issuer: 'Amazon Web Services',
+          date: '2021'
+        }
+      ]
+    };
+
+    setResumeData(updatedData);
+
+    // Automatically switch to the edit tab after data is loaded
+    setActiveTab('edit');
   };
 
   // Render the appropriate component based on the active tab
@@ -243,12 +312,10 @@ export default function Home() {
                 >
                   <Edit3 className="mr-2 h-4 w-4" /> Edit
                 </Button>
-                <Button
-                  onClick={() => window.print()}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  <Download className="mr-2 h-4 w-4" /> Download PDF
-                </Button>
+                <PDFExport
+                  resumeData={resumeData}
+                  selectedTemplate={selectedTemplate}
+                />
               </div>
             </div>
 
@@ -308,6 +375,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 overflow-hidden">
+      <Navbar />
       {/* Hero Section with Background Effects */}
       <div className="relative">
         <BackgroundBeams className="absolute inset-0 z-0 opacity-40" />

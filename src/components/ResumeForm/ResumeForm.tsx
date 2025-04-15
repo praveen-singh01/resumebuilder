@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -35,12 +35,63 @@ export default function ResumeForm({ initialData, onPreview, onDownload }: Resum
   const [activeSection, setActiveSection] = useState('personal');
   const [completedSections, setCompletedSections] = useState<string[]>([]);
 
+  // Mark sections as completed when initialData is provided
+  useEffect(() => {
+    console.log('ResumeForm received initialData:', JSON.stringify(initialData));
+    const completedSections = [];
+
+    // Check personal section
+    if (initialData.personal && (
+      initialData.personal.name ||
+      initialData.personal.email ||
+      initialData.personal.phone ||
+      initialData.personal.location ||
+      initialData.personal.summary
+    )) {
+      completedSections.push('personal');
+    }
+
+    // Check skills section
+    if (initialData.skills && initialData.skills.length > 0) {
+      completedSections.push('skills');
+    }
+
+    // Check experience section
+    if (initialData.workExperience && initialData.workExperience.length > 0) {
+      completedSections.push('experience');
+    }
+
+    // Check education section
+    if (initialData.education && initialData.education.length > 0) {
+      completedSections.push('education');
+    }
+
+    // Check projects section
+    if (initialData.projects && initialData.projects.length > 0) {
+      completedSections.push('projects');
+    }
+
+    // Check certifications section
+    if (initialData.certifications && initialData.certifications.length > 0) {
+      completedSections.push('certifications');
+    }
+
+    // Check languages section
+    if (initialData.languages && initialData.languages.length > 0) {
+      completedSections.push('languages');
+    }
+
+    console.log('Marking sections as completed:', completedSections);
+    setCompletedSections(completedSections);
+    setFormData(initialData);
+  }, [initialData]);
+
   const updateFormData = (section: string, data: any) => {
     setFormData(prev => ({
       ...prev,
       [section]: data
     }));
-    
+
     if (!completedSections.includes(section)) {
       setCompletedSections(prev => [...prev, section]);
     }
@@ -77,9 +128,9 @@ export default function ResumeForm({ initialData, onPreview, onDownload }: Resum
                   Step {currentSectionIndex + 1} of {sections.length}
                 </span>
               </div>
-              
+
               <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <motion.div 
+                <motion.div
                   className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2.5 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
@@ -91,8 +142,8 @@ export default function ResumeForm({ initialData, onPreview, onDownload }: Resum
             <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
               <TabsList className="grid grid-cols-7 mb-8">
                 {sections.map((section) => (
-                  <TabsTrigger 
-                    key={section.id} 
+                  <TabsTrigger
+                    key={section.id}
                     value={section.id}
                     className={`relative ${completedSections.includes(section.id) ? 'text-green-600' : ''}`}
                   >
@@ -105,51 +156,51 @@ export default function ResumeForm({ initialData, onPreview, onDownload }: Resum
               </TabsList>
 
               <TabsContent value="personal" className="mt-6">
-                <PersonalInfoForm 
-                  data={formData.personal} 
-                  onChange={(data) => updateFormData('personal', data)} 
+                <PersonalInfoForm
+                  data={formData.personal}
+                  onChange={(data) => updateFormData('personal', data)}
                 />
               </TabsContent>
 
               <TabsContent value="skills" className="mt-6">
-                <SkillsForm 
-                  data={formData.skills} 
-                  onChange={(data) => updateFormData('skills', data)} 
+                <SkillsForm
+                  data={formData.skills}
+                  onChange={(data) => updateFormData('skills', data)}
                 />
               </TabsContent>
 
               <TabsContent value="experience" className="mt-6">
-                <WorkExperienceForm 
-                  data={formData.workExperience} 
-                  onChange={(data) => updateFormData('workExperience', data)} 
+                <WorkExperienceForm
+                  data={formData.workExperience}
+                  onChange={(data) => updateFormData('workExperience', data)}
                 />
               </TabsContent>
 
               <TabsContent value="education" className="mt-6">
-                <EducationForm 
-                  data={formData.education} 
-                  onChange={(data) => updateFormData('education', data)} 
+                <EducationForm
+                  data={formData.education}
+                  onChange={(data) => updateFormData('education', data)}
                 />
               </TabsContent>
 
               <TabsContent value="projects" className="mt-6">
-                <ProjectsForm 
-                  data={formData.projects} 
-                  onChange={(data) => updateFormData('projects', data)} 
+                <ProjectsForm
+                  data={formData.projects}
+                  onChange={(data) => updateFormData('projects', data)}
                 />
               </TabsContent>
 
               <TabsContent value="certifications" className="mt-6">
-                <CertificationsForm 
-                  data={formData.certifications} 
-                  onChange={(data) => updateFormData('certifications', data)} 
+                <CertificationsForm
+                  data={formData.certifications}
+                  onChange={(data) => updateFormData('certifications', data)}
                 />
               </TabsContent>
 
               <TabsContent value="languages" className="mt-6">
-                <LanguagesForm 
-                  data={formData.languages} 
-                  onChange={(data) => updateFormData('languages', data)} 
+                <LanguagesForm
+                  data={formData.languages}
+                  onChange={(data) => updateFormData('languages', data)}
                 />
               </TabsContent>
             </Tabs>
@@ -172,7 +223,7 @@ export default function ResumeForm({ initialData, onPreview, onDownload }: Resum
                 >
                   <Eye className="mr-2 h-4 w-4" /> Preview
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   onClick={() => onDownload(formData)}

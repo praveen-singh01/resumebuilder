@@ -55,11 +55,33 @@ export default function FileUpload({ onResumeData }: FileUploadProps) {
       console.log('Response parsed successfully');
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to parse resume');
-      }
+        // Even if parsing failed, we still want to show the form with empty fields
+        console.log('Parsing failed, but still showing the form:', result.error);
+        onResumeData(result.data);
+        // Show the error message to the user
+        setError(result.error || 'Failed to parse resume');
+      } else {
+        console.log('Calling onResumeData with parsed data');
+        console.log('Received personal info:', JSON.stringify(result.data.personal));
+        console.log('Received skills:', result.data.skills.length, 'items');
+        console.log('Received work experience:', result.data.workExperience.length, 'items');
+        console.log('Received education:', result.data.education.length, 'items');
+        console.log('Received projects:', result.data.projects.length, 'items');
+        console.log('Received languages:', result.data.languages.length, 'items');
+        onResumeData(result.data);
 
-      console.log('Calling onResumeData with parsed data');
-      onResumeData(result.data);
+        // Check if we got meaningful data
+        const hasName = result.data.personal.name && result.data.personal.name.trim().length > 0;
+        const hasEmail = result.data.personal.email && result.data.personal.email.trim().length > 0;
+        const hasSkills = result.data.skills && result.data.skills.length > 0;
+        const hasExperience = result.data.workExperience && result.data.workExperience.length > 0;
+        const hasEducation = result.data.education && result.data.education.length > 0;
+
+        if (!hasName && !hasEmail && !hasSkills && !hasExperience && !hasEducation) {
+          // We didn't get any meaningful data
+          setError('We couldn\'t extract much information from your resume. Please fill in the details manually.');
+        }
+      }
     } catch (err) {
       console.error('Error uploading file:', err);
       setError(err instanceof Error ? err.message : 'Failed to upload file');

@@ -95,22 +95,22 @@ export default function TemplateSelection({
   };
 
   // Placeholder for missing images
-  const placeholderImage = (templateId: string, primaryColor: string) => {
+  const placeholderImage = (_templateId: string, primaryColor: string) => {
     return (
-      <div 
+      <div
         className="w-full h-full flex items-center justify-center rounded-t-lg"
         style={{ backgroundColor: primaryColor + "20" }} // Using primary color with opacity
       >
         <div className="text-center p-4">
           <div className="w-full h-4 bg-gray-200 rounded mb-2"></div>
           <div className="w-3/4 h-4 bg-gray-200 rounded mb-4 mx-auto"></div>
-          
+
           <div className="flex flex-col space-y-2">
             <div className="w-full h-2 bg-gray-200 rounded"></div>
             <div className="w-full h-2 bg-gray-200 rounded"></div>
             <div className="w-3/4 h-2 bg-gray-200 rounded"></div>
           </div>
-          
+
           <div className="mt-4 flex flex-wrap gap-1 justify-center">
             {[1, 2, 3].map((i) => (
               <div key={i} className="w-12 h-2 bg-gray-200 rounded"></div>
@@ -124,7 +124,7 @@ export default function TemplateSelection({
   return (
     <div className="w-full py-8">
       <h2 className="text-2xl font-bold mb-6 text-center">Choose a Template</h2>
-      
+
       <div className="relative">
         {/* Left scroll button */}
         <button
@@ -136,9 +136,9 @@ export default function TemplateSelection({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        
+
         {/* Template carousel */}
-        <div 
+        <div
           ref={carouselRef}
           className="flex overflow-x-auto pb-6 px-12 hide-scrollbar snap-x snap-mandatory"
           style={{ scrollbarWidth: "none" }}
@@ -149,10 +149,10 @@ export default function TemplateSelection({
               className={`flex-shrink-0 w-64 mx-3 snap-center ${
                 selectedTemplateId === template.id ? "ring-2 ring-offset-2" : ""
               }`}
-              style={{ 
+              style={{
                 borderRadius: "0.5rem",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                ringColor: template.primaryColor
+                border: selectedTemplateId === template.id ? `2px solid ${template.primaryColor}` : 'none'
               }}
               initial={{ scale: 0.95, opacity: 0.8 }}
               whileInView={{ scale: 1, opacity: 1 }}
@@ -175,9 +175,9 @@ export default function TemplateSelection({
                   ) : (
                     placeholderImage(template.id, template.primaryColor)
                   )}
-                  
+
                   {/* Hover overlay */}
-                  <motion.div 
+                  <motion.div
                     className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity rounded-t-lg"
                     animate={{ opacity: hoveredTemplate === template.id ? 1 : 0 }}
                   >
@@ -189,29 +189,29 @@ export default function TemplateSelection({
                     </button>
                   </motion.div>
                 </div>
-                
+
                 {/* Template info */}
                 <div className="p-4">
                   <h3 className="font-bold text-lg">{template.name}</h3>
                   <p className="text-gray-600 text-sm mt-1">{template.description}</p>
-                  
+
                   <div className="mt-4 flex justify-between items-center">
                     {/* Color preview */}
                     <div className="flex space-x-2">
-                      <div 
-                        className="w-5 h-5 rounded-full" 
+                      <div
+                        className="w-5 h-5 rounded-full"
                         style={{ backgroundColor: template.primaryColor }}
                       ></div>
-                      <div 
-                        className="w-5 h-5 rounded-full" 
+                      <div
+                        className="w-5 h-5 rounded-full"
                         style={{ backgroundColor: template.secondaryColor }}
                       ></div>
                     </div>
-                    
+
                     <button
                       onClick={() => onSelectTemplate(template)}
                       className="px-3 py-1 text-sm rounded-md"
-                      style={{ 
+                      style={{
                         backgroundColor: template.primaryColor,
                         color: "white"
                       }}
@@ -224,7 +224,7 @@ export default function TemplateSelection({
             </motion.div>
           ))}
         </div>
-        
+
         {/* Right scroll button */}
         <button
           onClick={() => scroll("right")}
@@ -236,7 +236,7 @@ export default function TemplateSelection({
           </svg>
         </button>
       </div>
-      
+
       {/* Add custom CSS for hiding scrollbar */}
       <style jsx global>{`
         .hide-scrollbar::-webkit-scrollbar {
@@ -250,3 +250,6 @@ export default function TemplateSelection({
     </div>
   );
 }
+
+
+

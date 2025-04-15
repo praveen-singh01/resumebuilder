@@ -1,7 +1,8 @@
 import mammoth from "mammoth";
 import { ResumeData } from "@/types/resume";
+import { parsePdfResume } from "./advancedPdfParser";
 
-export async function parseDocxFile(fileBuffer: Buffer): Promise<ResumeData | null> {
+export async function parseDocxFile(fileBuffer: Buffer): Promise<ResumeData> {
   try {
     console.log("Starting DOCX parsing...");
     console.log("Buffer size:", fileBuffer.length);
@@ -47,6 +48,7 @@ export async function parseDocxFile(fileBuffer: Buffer): Promise<ResumeData | nu
       return defaultResumeData;
     }
 
+    // Extract text from DOCX
     const result = await mammoth.extractRawText({ buffer: fileBuffer });
     const text = result.value;
 
@@ -58,11 +60,26 @@ export async function parseDocxFile(fileBuffer: Buffer): Promise<ResumeData | nu
       return defaultResumeData;
     }
 
-    // Extract data from the DOCX text
-    const extractedData = extractDataFromText(text);
-    console.log("Data extracted successfully");
+    try {
+      // Create a mock PDF-like text structure
+      console.log("Using advanced parser for DOCX content...");
 
-    return extractedData;
+      // Create a structured text that mimics a resume format
+      // This helps the PDF parser identify sections more easily
+      const structuredText = formatTextForParsing(text);
+
+      // Convert the structured text to a buffer and use the advanced PDF parser
+      const textBuffer = Buffer.from(structuredText);
+      const resumeData = await parsePdfResume(textBuffer);
+      console.log("Advanced parsing successful");
+      return resumeData;
+    } catch (advancedParseError) {
+      console.error("Advanced parsing failed, falling back to basic parser:", advancedParseError);
+      // Fall back to the basic parser if advanced parsing fails
+      const extractedData = extractDataFromText(text);
+      console.log("Basic data extraction successful");
+      return extractedData;
+    }
   } catch (error) {
     console.error("Error parsing DOCX:", error);
     // Return a default resume structure instead of null
@@ -111,7 +128,7 @@ function extractDataFromText(text: string): ResumeData {
   const linkedinUrl = linkedinMatch ? `https://www.${linkedinMatch[0]}` : "";
 
   // Extract skills (simplified)
-  const skillsSection = findSection(text, ["SKILLS", "TECHNICAL SKILLS"]);
+  const skillsSection = findSectionSimple(text, ["SKILLS", "TECHNICAL SKILLS"]);
   const skills = skillsSection
     ? skillsSection
         .split(/[,;]/)
@@ -120,19 +137,19 @@ function extractDataFromText(text: string): ResumeData {
     : [];
 
   // Extract education (simplified)
-  const educationSection = findSection(text, ["EDUCATION", "ACADEMIC"]);
+  const educationSection = findSectionSimple(text, ["EDUCATION", "ACADEMIC"]);
   const education = educationSection
     ? parseEducation(educationSection)
     : [];
 
   // Extract work experience (simplified)
-  const experienceSection = findSection(text, ["EXPERIENCE", "WORK EXPERIENCE", "EMPLOYMENT"]);
+  const experienceSection = findSectionSimple(text, ["EXPERIENCE", "WORK EXPERIENCE", "EMPLOYMENT"]);
   const workExperience = experienceSection
     ? parseWorkExperience(experienceSection)
     : [];
 
   // Extract summary
-  const summarySection = findSection(text, ["SUMMARY", "PROFESSIONAL SUMMARY", "OBJECTIVE"]);
+  const summarySection = findSectionSimple(text, ["SUMMARY", "PROFESSIONAL SUMMARY", "OBJECTIVE"]);
   const summary = summarySection || "";
 
   return {
@@ -164,7 +181,7 @@ function extractDataFromText(text: string): ResumeData {
   };
 }
 
-function findSection(text: string, possibleHeaders: string[]): string | null {
+function findSectionSimple(text: string, possibleHeaders: string[]): string | null {
   // This is a simplified implementation
   for (const header of possibleHeaders) {
     const regex = new RegExp(`${header}[:\\s]*(.*?)(?=\\n\\s*[A-Z]{2,}|$)`, "is");
@@ -224,4 +241,98 @@ function parseWorkExperience(experienceText: string): { company: string; role: s
   }
 
   return experiences;
+}
+
+/**
+ * Find a section in the text based on keywords
+ */
+function findSection(text: string, keywords: string[]): string {
+  const lines = text.split('\n');
+  let sectionContent = '';
+  let inSection = false;
+  let sectionStartIndex = -1;
+
+  // Find the section start
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim().toUpperCase();
+
+    // Check if this line contains a section keyword
+    if (!inSection && keywords.some(keyword => line.includes(keyword))) {
+      inSection = true;
+      sectionStartIndex = i + 1; // Start from the next line
+      continue;
+    }
+
+    // Check if we've reached the next section
+    if (inSection && i > sectionStartIndex) {
+      // Look for common section headers that would indicate the end of this section
+      const commonSectionHeaders = [
+        "SUMMARY", "EXPERIENCE", "EDUCATION", "SKILLS", "PROJECTS",
+        "CERTIFICATIONS", "LANGUAGES", "REFERENCES", "INTERESTS"
+      ];
+
+      if (commonSectionHeaders.some(header => line.includes(header) && !keywords.includes(header))) {
+        break;
+      }
+
+      // Add this line to the section content
+      sectionContent += lines[i] + '\n';
+    }
+  }
+
+  return sectionContent.trim();
+}
+
+/**
+ * Format extracted text to make it more parser-friendly
+ * This function adds section headers and structures the text to help the PDF parser
+ */
+function formatTextForParsing(text: string): string {
+  // Find potential sections in the text
+  const sections = {
+    summary: findSection(text, ["SUMMARY", "PROFESSIONAL SUMMARY", "OBJECTIVE"]),
+    experience: findSection(text, ["EXPERIENCE", "WORK EXPERIENCE", "EMPLOYMENT"]),
+    education: findSection(text, ["EDUCATION", "ACADEMIC"]),
+    skills: findSection(text, ["SKILLS", "TECHNICAL SKILLS"]),
+    projects: findSection(text, ["PROJECTS", "PROJECT EXPERIENCE"]),
+    certifications: findSection(text, ["CERTIFICATIONS", "CERTIFICATES"]),
+    languages: findSection(text, ["LANGUAGES", "LANGUAGE PROFICIENCY"])
+  };
+
+  // Extract name and contact info from the beginning of the text
+  const lines = text.split('\n').filter(line => line.trim() !== '');
+  const header = lines.slice(0, Math.min(10, lines.length)).join('\n');
+
+  // Build a structured text with clear section headers
+  let structuredText = header + '\n\n';
+
+  if (sections.summary) {
+    structuredText += "SUMMARY\n" + sections.summary + '\n\n';
+  }
+
+  if (sections.experience) {
+    structuredText += "WORK EXPERIENCE\n" + sections.experience + '\n\n';
+  }
+
+  if (sections.education) {
+    structuredText += "EDUCATION\n" + sections.education + '\n\n';
+  }
+
+  if (sections.skills) {
+    structuredText += "SKILLS\n" + sections.skills + '\n\n';
+  }
+
+  if (sections.projects) {
+    structuredText += "PROJECTS\n" + sections.projects + '\n\n';
+  }
+
+  if (sections.certifications) {
+    structuredText += "CERTIFICATIONS\n" + sections.certifications + '\n\n';
+  }
+
+  if (sections.languages) {
+    structuredText += "LANGUAGES\n" + sections.languages + '\n\n';
+  }
+
+  return structuredText;
 }
