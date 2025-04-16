@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FileUploadResponse, ResumeData } from "@/types/resume";
 
+// Set the route to be dynamic to handle form data
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Import parsers dynamically to avoid issues with native modules
 let parsePdfResume: (buffer: Buffer) => Promise<ResumeData>;
 let parseDocxFile: (buffer: Buffer) => Promise<ResumeData>;

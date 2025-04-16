@@ -77,6 +77,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Sign in with popup
       const result = await signInWithPopup(auth, provider);
       console.log("Google sign-in successful", result.user);
+
+      // Get the ID token
+      const idToken = await result.user.getIdToken();
+
+      // Store the token in localStorage (we're not using cookies due to static export limitations)
+      localStorage.setItem('auth-token', idToken);
+
       toast.success("Successfully signed in!");
     } catch (error: any) {
       console.error("Error signing in with Google:", error);
@@ -93,6 +100,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       await signOut(auth);
+
+      // Remove the auth token from localStorage
+      localStorage.removeItem('auth-token');
+
       toast.success("Successfully logged out");
     } catch (error: any) {
       console.error("Error signing out:", error);

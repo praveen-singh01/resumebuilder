@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="150px" height="40px" viewBox="0 0 150 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Resume Builder Logo</title>
+    <g id="Logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Logo-Group" transform="translate(0.000000, 5.000000)">
+            <text id="Resume-Builder" font-family="Arial-BoldMT, Arial" font-size="18" font-weight="bold" fill="#333333">
+                <tspan x="0" y="20">Resume</tspan>
+                <tspan x="65.0097656" y="20" font-family="Arial-MT, Arial" font-weight="normal"> </tspan>
+                <tspan x="69.0097656" y="20" fill="#3B82F6">Builder</tspan>
+            </text>
+            <path d="M142,5 L146,5 C147.104569,5 148,5.8954305 148,7 L148,23 C148,24.1045695 147.104569,25 146,25 L142,25 C140.895431,25 140,24.1045695 140,23 L140,7 C140,5.8954305 140.895431,5 142,5 Z" id="Rectangle" fill="#3B82F6"></path>
+        </g>
+    </g>
+</svg>

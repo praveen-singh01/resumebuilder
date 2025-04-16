@@ -1,164 +1,95 @@
-# Modern Resume Builder
+# Resume Builder - resume.io Clone
 
-A modern resume builder application with enhanced UI/UX and Firebase authentication.
+A modern resume builder application that clones the UI/UX of resume.io, built with Next.js, Firebase, and Tailwind CSS.
 
 ## Features
 
-- Modern UI/UX with animations and visual effects
-- Google Sign-in authentication with Firebase
-- Resume creation and management
-- Multiple resume templates
-- PDF resume upload and parsing
-- LinkedIn profile import
-- Dashboard to manage your resumes
+- Create professional resumes with multiple templates
+- Upload existing resumes to extract information
+- Edit and customize your resume
+- Create professional cover letters
+- Download as PDF
+- Save and manage multiple resumes
+- Responsive design for all devices
 
 ## Tech Stack
 
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS
-- Shadcn UI
-- Aceternity UI components
 - Firebase Authentication
 - Firestore Database
-- Framer Motion
+- Firebase Hosting
+- Shadcn UI Components
+- Aceternity UI Components
+- Framer Motion for animations
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm (our deployment script handles Firebase CLI compatibility)
+- Node.js 18 or later
+- npm or yarn
 - Firebase account
 
-### Setup
+### Installation
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/modern-resume-builder.git
-cd modern-resume-builder
+git clone https://github.com/your-username/resume-builder.git
+cd resume-builder
 ```
 
-2. Install dependencies:
+2. Install dependencies and run the application:
 
 ```bash
-npm install
+npm run run-app
 ```
 
-3. Create a Firebase project:
-   - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Create a new project
-   - Set up Authentication with Google provider
-   - Create a Firestore database
-   - Register a web app and get your Firebase config
+This script will install all dependencies and start the development server.
 
-4. Create a `.env.local` file in the root directory with your Firebase configuration:
+3. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-```
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-storage-bucket.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your-measurement-id
+## Pages
 
-# Firebase Admin Configuration
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_CLIENT_EMAIL=your-client-email
-FIREBASE_PRIVATE_KEY=your-private-key
-
-# Google OAuth Configuration
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# NextAuth Configuration
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-nextauth-secret
-```
-
-5. Run the development server:
-
-```bash
-npm run dev
-```
-
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Firebase Setup Details
-
-### Authentication
-
-1. In the Firebase Console, go to Authentication
-2. Click "Get Started"
-3. Enable the Google sign-in method
-4. Add your authorized domains
-
-### Firestore
-
-1. In the Firebase Console, go to Firestore Database
-2. Click "Create database"
-3. Start in production mode
-4. Choose a location close to your users
-5. Set up security rules to protect your data
-
-### Google OAuth
-
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select your Firebase project
-3. Go to "APIs & Services" > "Credentials"
-4. Create an OAuth client ID
-5. Add authorized JavaScript origins and redirect URIs
-6. Copy the client ID and client secret to your `.env.local` file
+- `/home` - Landing page with hero section, features, templates showcase, testimonials, FAQ, and CTA
+- `/app/create-resume` - Resume builder with multi-step form
+- `/app/create-cover-letter` - Cover letter builder
+- `/resume-templates` - Browse and filter resume templates
+- `/resume-examples` - Browse and filter resume examples by industry and experience level
 
 ## Deployment
 
-### Firebase Deployment
+### Deploy to Firebase Hosting
 
-This application is configured to be deployed on Firebase Hosting:
+Use our simplified deployment script:
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+npm run deploy-simplified
+```
 
-2. Log in to Firebase:
-   ```bash
-   npm run firebase-login
-   ```
+This will deploy a simplified version of the application to Firebase Hosting.
 
-3. Deploy the application:
-   ```bash
-   npm run deploy
-   ```
+After deployment, your application will be available at:
+- https://resumebuilder-bf672.web.app
+- https://resumebuilder-bf672.firebaseapp.com
 
-   After deployment, your application will be available at:
-   - https://resumebuilder-bf672.web.app
-   - https://resumebuilder-bf672.firebaseapp.com
+## UI Components
 
-### Automatic Deployment with GitHub Actions
+The UI is built using a combination of:
 
-This repository is configured with GitHub Actions for automatic deployment when you push to the main branch.
+1. **Shadcn UI** - For base components like buttons, inputs, and dropdowns
+2. **Aceternity UI** - For advanced animations and effects
+3. **Custom Components** - Built to match resume.io's design
 
-To set up automatic deployment:
+## Authentication
 
-1. Go to your GitHub repository settings
-2. Navigate to "Secrets and variables" > "Actions"
-3. Add a new repository secret:
-   - Name: `FIREBASE_SERVICE_ACCOUNT_RESUMEBUILDER_BF672`
-   - Value: Your Firebase service account JSON (can be generated in Firebase Project Settings > Service accounts)
+The application uses Firebase Authentication with Google sign-in. Users can create accounts, save their resumes, and access them from any device.
 
-Now, every push to the main branch will trigger a deployment to Firebase Hosting.
+## Database
 
-### Alternative: Vercel Deployment
-
-This application can also be deployed to Vercel:
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Configure your environment variables
-4. Deploy
+Firestore is used to store user data, resume templates, and user-created resumes.
 
 ## License
 

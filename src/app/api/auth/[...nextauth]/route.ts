@@ -1,6 +1,10 @@
 import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 
+// Set the route to be dynamic
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Create the handler
 const handler = NextAuth(authOptions);
 

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { parseLinkedInProfile } from "@/lib/parsers/linkedinParser";
 import { LinkedInParseResponse } from "@/types/resume";
 
+// Set the route to be dynamic
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

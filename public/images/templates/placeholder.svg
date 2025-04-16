@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300px" height="400px" viewBox="0 0 300 400" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Resume Template Placeholder</title>
+    <defs>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#EBF4FF" offset="0%"></stop>
+            <stop stop-color="#C3DAFE" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Template" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Background" fill="url(#linearGradient-1)" x="0" y="0" width="300" height="400"></rect>
+        <rect id="Header" fill="#3B82F6" x="0" y="0" width="300" height="60"></rect>
+        <circle id="Avatar" fill="#FFFFFF" cx="50" cy="50" r="30"></circle>
+        <rect id="Name" fill="#FFFFFF" x="100" y="30" width="180" height="12" rx="2"></rect>
+        <rect id="Title" fill="#FFFFFF" opacity="0.7" x="100" y="50" width="120" height="8" rx="2"></rect>
+        
+        <rect id="Section-1-Title" fill="#3B82F6" x="20" y="100" width="80" height="10" rx="2"></rect>
+        <rect id="Section-1-Line-1" fill="#E5E7EB" x="20" y="120" width="260" height="8" rx="2"></rect>
+        <rect id="Section-1-Line-2" fill="#E5E7EB" x="20" y="135" width="260" height="8" rx="2"></rect>
+        <rect id="Section-1-Line-3" fill="#E5E7EB" x="20" y="150" width="200" height="8" rx="2"></rect>
+        
+        <rect id="Section-2-Title" fill="#3B82F6" x="20" y="180" width="80" height="10" rx="2"></rect>
+        <rect id="Section-2-Line-1" fill="#E5E7EB" x="20" y="200" width="260" height="8" rx="2"></rect>
+        <rect id="Section-2-Line-2" fill="#E5E7EB" x="20" y="215" width="260" height="8" rx="2"></rect>
+        <rect id="Section-2-Line-3" fill="#E5E7EB" x="20" y="230" width="200" height="8" rx="2"></rect>
+        
+        <rect id="Section-3-Title" fill="#3B82F6" x="20" y="260" width="80" height="10" rx="2"></rect>
+        <rect id="Section-3-Line-1" fill="#E5E7EB" x="20" y="280" width="260" height="8" rx="2"></rect>
+        <rect id="Section-3-Line-2" fill="#E5E7EB" x="20" y="295" width="260" height="8" rx="2"></rect>
+        <rect id="Section-3-Line-3" fill="#E5E7EB" x="20" y="310" width="200" height="8" rx="2"></rect>
+        
+        <rect id="Section-4-Title" fill="#3B82F6" x="20" y="340" width="80" height="10" rx="2"></rect>
+        <rect id="Section-4-Line-1" fill="#E5E7EB" x="20" y="360" width="260" height="8" rx="2"></rect>
+        <rect id="Section-4-Line-2" fill="#E5E7EB" x="20" y="375" width="180" height="8" rx="2"></rect>
+    </g>
+</svg>
